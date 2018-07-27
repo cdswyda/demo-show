@@ -243,7 +243,15 @@ export default {
           value: this.codeSource,
           language: 'html',
           theme: 'vs-dark',
-          automaticLayout: true
+          automaticLayout: true,
+          autoIndent: true,
+          autoClosingBrackets: true,
+          acceptSuggestionOnEnter: 'on',
+          colorDecorators: true,
+          dragAndDrop: true,
+          formatOnPaste: true,
+          formatOnType: true,
+          mouseWheelZoom: true
         });
         this.editorInited = true;
         this.editorLoading = false;
