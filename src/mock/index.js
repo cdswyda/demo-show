@@ -10,7 +10,8 @@ const mockData = [{
   demoList: [{
     id: 'button-1',
     url: 'http://fe.epoint.com.cn:8080/miniui_dev/demo/button/button.html',
-    name: '按钮'
+    name: '按钮',
+    height:840
   }, {
     id: 'button-2',
     url: 'http://fe.epoint.com.cn:8080/miniui_dev/demo/button/button_semantic.html',

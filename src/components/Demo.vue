@@ -9,7 +9,7 @@
           {{ title }}
         </span>
       </header>
-      <div class="example-case" :style="{'height':height}">
+      <div class="example-case" :style="{'height': height + 'px'}">
         <iframe class="example-ifr" :src="url" height="100%" width="100%" frameborder="0" scrolling="no"></iframe>
       </div>
       <div class="example-desc" v-if="!descriptionAsTab && mdLoaded">
@@ -22,25 +22,25 @@
     <i-col class="example-code" :span="isVertical ? 24 : 12" :style="desAndCodeStyle">
 
       <!-- 文档和代码展示 -->
-      <Tabs ref="tabs" v-if="descriptionAsTab" :value="'description'">
+      <Tabs ref="tabs" v-if="descriptionAsTab" v-model="activeTab" @on-click="showMore = false">
         <TabPane label="说明" name="description">
-          <MDView :mdContent="md"></MDView>
+          <MDView :mdContent="md" @contentLoaded="updateHight"></MDView>
         </TabPane>
         <TabPane label="代码" name="code">
-          <CodeView :codeUrl="url"></CodeView>
+          <CodeView :codeUrl="url" :title="title" @contentLoaded="updateHight"></CodeView>
         </TabPane>
       </Tabs>
-      <CodeView ref="codeOnly" v-if="!descriptionAsTab" :codeUrl="url"></CodeView>
+      <CodeView ref="codeOnly" v-if="!descriptionAsTab" :codeUrl="url" :title="title" @contentLoaded="updateHight"></CodeView>
 
       <!-- 查看更多 -->
-      <div class="example-view-more" v-if="isOverView" @click="showMore = !showMore">
+      <div class="example-view-more" ref="viewMore" v-if="isOverView" @click="showMore = !showMore">
           <Icon type="ios-arrow-down" v-show="!showMore"></Icon>
           <Icon type="ios-arrow-up" v-show="showMore"></Icon>
-          <i-button type="text" v-show="!showMore">
-              <template>显示更多</template>
+          <i-button type="text">
+              <template v-if="!showMore">显示更多</template>
+              <template v-if="showMore">收起</template>
           </i-button>
       </div>
-
     </i-col>
   </Row>
 </template>
@@ -95,14 +95,47 @@ export default {
       // 垂直布局下 说明和代码默认展示的高度
       VERTICAL_DES_HEIGHT: 400,
       // 是否需要展示更多
-      isOverView: false
+      isOverView: false,
+      activeTab:'description'
     };
   },
   computed: {
+    // 显示更多区域高度
+    showMoreHeight() {
+      if (!this.isOverView) {
+        return 0;
+      }
+      return this.$refs.viewMore.clientHeight;
+    },
+    tabHeaderHeight(){
+      if(!this.$refs.tabs) {
+        return 0;
+      }else {
+        return 36;
+      }
+    },
+    extraHeight() {
+      return this.showMoreHeight + this.tabHeaderHeight;
+    },
     // 描述和代码展示区域的高度
     desAndCodeStyle() {
       let style = {};
 
+      // 显示更多时
+      // // 直接移除高度即可
+      if (this.showMore) {
+        // 不同tab高度不一 还是需要根据激活的取对应高度
+        if (this.$refs.tabs) {
+          const activeTabIdx = this.$refs.tabs.getTabIndex(this.$refs.tabs.value);
+          const activeTab = this.$refs.tabs.getTabs()[activeTabIdx];
+          style.height = `${activeTab.$el.firstElementChild.clientHeight + this.extraHeight}px`;
+        } else {
+          style.height = `${this.$refs.codeOnly.$el.clientHeight + this.extraHeight}px`;
+        }
+        return style;
+      }
+
+      // 否则取各自状态下的限制高度
       if (this.isVertical) {
         // 通栏展示时 暂时直接固定为400px;
         style.height = `${this.VERTICAL_DES_HEIGHT}px`;
@@ -118,7 +151,6 @@ export default {
   },
   mounted() {
     this.init();
-
   },
   methods: {
     init() {
@@ -126,54 +158,37 @@ export default {
       if (this.docUrl) {
         this.true = false;
         axios.get(this.docUrl).then(content => {
-          console.log(content);
+          // console.log(content);
           this.md = content.data;
-          this.mdLoaded = true;
           this.descriptionAsTab = this.md.length > 500 ? true : false;
           this.loading = false;
-          // this.updateIsOverView();
         });
       } else {
         this.descriptionAsTab = false;
         this.loading = false;
-        // this.updateIsOverView();
       }
-      // this.$nextTick(() => {
-      // const demo_height = this.$children[0].$children[0].$el.clientHeight;
-      // const code_height = this.$children[0].$children[1].$el.clientHeight + 20;
-      // this.code_height = code_height;
-      // if (code_height <= demo_height && !this.isCodeHide) {
-      //   this.showMore = false;
-      // }
-      // this.demo_height = this.isCodeHide ? 30 : demo_height;
-      // this.ready = true;
-      // });
+    },
+    // 更新高度
+    updateHight() {
+      // md和代码加载完成后更新计算高度
+      this.updateIsOverView();
     },
     updateIsOverView() {
       this.$nextTick(() => {
         if (this.loading) {
           return (this.isOverView = false);
         }
-        console.log(this.$refs);
         const h = this.descriptionAsTab ? this.$refs.tabs.$el.clientHeight : this.$refs.codeOnly.$el.clientHeight;
         // 限制高度取值
         // 垂直情况下为 固定高度值
         // 水平状态下为 左侧demo展示高度值
-        const limit_h = this.isVertical ? this.VERTICAL_DES_HEIGHT : this.$refs.demoShow.clientHeight;
-        console.log(h, limit_h);
+        const limit_h = this.isVertical ? this.VERTICAL_DES_HEIGHT : this.$refs.demoShow.$el.clientHeight;
 
         this.isOverView = h > limit_h;
       });
     }
   },
-  watch: {
-    // settingCode() {
-    //   this.showCode = false;
-    //   this.showMore = true;
-    //   this.ready = false;
-    //   this.init();
-    // }
-  },
+  watch: {},
   beforeRouteUpdate(to, from, next) {
     this.$nextTick(() => {
       this.init();

@@ -1,10 +1,12 @@
-<style lang="sass">
-
+<style lang="scss">
+.demo-list {
+  padding:10px 20px;
+}
 </style>
 
 <template>
   <div class="demo-list">
-    <Demo v-for="item in list" :key="item.id" :title="item.name" :url="item.url" :isVertical="item.isVertical" :docUrl="item.docUrl"></Demo>
+    <Demo v-for="item in list" :key="item.id" :title="item.name" :url="item.url" :isVertical="item.isVertical" :docUrl="item.docUrl" :height="item.height"></Demo>
   </div>
 </template>
 

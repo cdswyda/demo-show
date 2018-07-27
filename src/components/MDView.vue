@@ -26,6 +26,7 @@ export default {
         [].slice.call(this.$refs.mdView.querySelectorAll('pre code')).forEach(item => {
           hljs.highlightBlock(item);
         });
+        this.$emit('contentLoaded');
       });
     }
   }

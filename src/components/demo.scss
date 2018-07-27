@@ -110,6 +110,9 @@
     position: relative;
     overflow: hidden;
     transition: height .2s ease-in-out;
+    .ivu-tabs-bar {
+      margin-bottom: 0;
+    }
   }
   &-view-more {
       position: absolute;
@@ -128,7 +131,8 @@
         bottom: 0;
         left: 0;
         z-index: 1;
-        box-shadow: 0 -15px 30px #fff inset;
+        // box-shadow: 0 -15px 30px #fff inset;
+        background: linear-gradient(to top, #fff, rgba(255,255,255,.7));
       }
       i {
         position: relative;
@@ -141,7 +145,14 @@
         top: 4px;
         z-index: 2;
       }
+      .ivu-btn-text:focus {
+        box-shadow: none;
+      }
       &:hover {
+        &:after {
+          background: linear-gradient(to top, #fff, rgba(255,255,255,.9));
+          box-shadow: none;
+        }
         /*background: #fff;*/
         i {
           color: #5cb85c;
