@@ -41,6 +41,11 @@ const mockData = [{
   id: 'layout',
   name: '框架布局',
   demoList: [{
+    id: 'left-right2',
+    name: '测试运行',
+    isVertical: false,
+    url: './static/test.html'
+  },{
     id: 'left-right',
     name: '左右布局',
     isVertical: false,
